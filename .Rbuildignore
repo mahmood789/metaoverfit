@@ -1,41 +1,57 @@
-# R build ignore
-^\.Rproj\.user$
-^\.Rhistory$
-^\.RData$
-^\.Ruserdata$
-^\.Rprofile$
-^\.Renviron$
-^\.Rbuildignore$
-^\.Rproj$
+# 1) Overwrite .Rbuildignore with safe, valid patterns
+writeLines(c(
+  # RStudio / history / local user files
+  "^\\.Rproj\\.user$",
+  "^\\.Rproj$",
+  "^\\.Rhistory$",
+  "^\\.RData$",
+  "^\\.Ruserdata$",
+  "^\\.Rprofile$",        # keep in repo if you want, just don't ship it
 
-# Package build output
-^metaoverfit\.Rcheck/
-^metaoverfit\.tar\.gz$
-^metaoverfit_.*\.zip$
-^metaoverfit_.*\.tgz$
-^*.o
-^*.so
-^*.dll
+  # renv project infra (do not ship)
+  "^renv$",
+  "^renv\\.lock$",
 
-# Dependency management
-^renv$
-^renv\.lock$
+  # CRAN/CI ancillary files
+  "^cran-comments\\.md$",
+  "^CRAN-SUBMISSION$",
+  "^\\.github$",
+  "^README\\.Rmd$",
+  "^NEWS\\.md$",          # optional: exclude NEWS from tarball
 
-# Documentation
-^doc$
-^Meta$
+  # Built docs/vignettes (CRAN rebuilds them)
+  "^doc$",
+  "^Meta$",
 
-# Local and project files
-^nma_results$
-^results_nma$
-^cran-comments\.md$
-^CRAN-SUBMISSION$
+  # Your scratch dirs (if any)
+  "^nma_results$",
+  "^results_nma$",
 
-# GitHub workflows
-^\.github$
+  # Generic build artifacts — VALID regex (do not use '^*.o')
+  ".*\\.o$",
+  ".*\\.so$",
+  ".*\\.dll$",
+  ".*\\.tar\\.gz$",
+  ".*_.*\\.zip$",
+  ".*_.*\\.tgz$"
+), ".Rbuildignore")
 
-# IDE / OS specific
-.DS_Store
-Thumbs.db
+# 2) (Optional) Make .Rprofile renv call safe if you keep it
+if (file.exists(".Rprofile")) {
+  prof <- readLines(".Rprofile", warn = FALSE)
+  if (!any(grepl("renv/activate\\.R", prof, fixed = TRUE))) {
+    prof <- c(prof, 'if (file.exists("renv/activate.R")) source("renv/activate.R")')
+    writeLines(prof, ".Rprofile")
+  }
+}
+
+# 3) Confirm no invalid patterns remain
+readLines(".Rbuildignore")
+
+# 4) Commit & push (works inside R if git is available on PATH)
+system("git add .Rbuildignore .Rprofile", ignore.stdout = TRUE, ignore.stderr = TRUE)
+system('git commit -m "Fix .Rbuildignore regex; guard .Rprofile for renv"', ignore.stdout = TRUE, ignore.stderr = TRUE)
+system("git push", ignore.stdout = TRUE, ignore.stderr = TRUE)
+
 
 
