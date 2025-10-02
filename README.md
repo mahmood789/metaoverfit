@@ -1,7 +1,3 @@
-# metaoverfit: Detecting Overfitting in Meta-Regression
-
-## Installation
-```r
 # Install from GitHub
 devtools::install_github("yourusername/metaoverfit")
 
