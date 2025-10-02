@@ -1,0 +1,22 @@
+Package: metaoverfit
+Type: Package
+Title: Optimism-Corrected Heterogeneity in Meta-Regression
+Version: 0.1.0
+Authors@R: c(person(given = "Mahmood", family = "Ahmad", email = "mahmood.ahmad2@nhs.net", role = c("aut", "cre")))
+Description: Implements cross-validation methods to detect and correct for overfitting in meta-regression. Provides optimism-corrected R-squared measures, bootstrap confidence intervals, and diagnostic tools for assessing the reliability of heterogeneity explanations in meta-analysis.
+License: GPL-3
+Encoding: UTF-8
+Depends: R (>= 3.5.0)
+Imports:
+    metafor (>= 3.0.0),
+    stats,
+    utils
+Suggests:
+    ggplot2,
+    knitr,
+    rmarkdown,
+    testthat,
+    metadat
+RoxygenNote: 7.3.3
+VignetteBuilder: knitr
+

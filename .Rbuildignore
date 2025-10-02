@@ -1,0 +1,28 @@
+^renv$
+^renv\.lock$
+^metaoverfit\.Rproj$
+^\.Rproj\.user$
+^\.github$
+^\.git$
+^\.gitignore$
+^\.DS_Store$
+^\.vscode$
+^\.Rhistory$
+^\.RData$
+^\.Rprofile$
+^\.lintr\.json$
+
+^README\.Rmd$
+^_pkgdown\.yml$
+^pkgdown$
+^docs$
+^site$
+^cran-comments\.md$
+^CRAN-SUBMISSION$
+
+^nma_results$
+^results_nma$
+^doc$          # prevent inst/doc being committed from local builds
+^Meta$         # auto-generated on build (shouldn’t be in src tarball)
+^doc$
+^Meta$
