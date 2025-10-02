@@ -1,12 +1,41 @@
-^\.github$
+# R build ignore
 ^\.Rproj\.user$
-^metaoverfit\.Rproj$
+^\.Rhistory$
+^\.RData$
+^\.Ruserdata$
+^\.Rprofile$
+^\.Renviron$
+^\.Rbuildignore$
+^\.Rproj$
+
+# Package build output
+^metaoverfit\.Rcheck/
+^metaoverfit\.tar\.gz$
+^metaoverfit_.*\.zip$
+^metaoverfit_.*\.tgz$
+^*.o
+^*.so
+^*.dll
+
+# Dependency management
 ^renv$
 ^renv\.lock$
+
+# Documentation
+^doc$
+^Meta$
+
+# Local and project files
+^nma_results$
+^results_nma$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
-^README\.Rmd$
-^doc$          # optional: if you don't want to ship prebuilt vignettes
-^Meta$         # generated
+
+# GitHub workflows
+^\.github$
+
+# IDE / OS specific
+.DS_Store
+Thumbs.db
 
 
