@@ -1,0 +1,152 @@
+yaml
+
+---
+title: "metaoverfit: Introduction and Quick Start"
+author: "Mahmood Ahmad"
+date: "`r format(Sys.Date())`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{metaoverfit: Introduction and Quick Start}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+{r
+Copy code
+knitr::opts_chunk$set(
+  collapse   = TRUE,
+  comment    = "#>",
+  fig.align  = "center",
+  fig.width  = 6,
+  fig.height = 4,
+  message    = FALSE,
+  warning    = FALSE
+)
+set.seed(123)
+Overview
+metaoverfit provides tools to detect and correct overfitting in meta-regression, including:
+
+Apparent and adjusted $R^2_{\text{het}}$
+
+Cross-validated (optimism-corrected) $\tilde{R}^2_{\text{het}}$
+
+Bootstrap confidence intervals
+
+Sample size guidance and diagnostics plots
+
+This vignette walks through a minimal, fast example using the BCG vaccine dataset from metadat.
+
+Installation
+{r
+Copy code
+# CRAN (once accepted)
+# install.packages("metaoverfit")
+
+# Development version (GitHub)
+# remotes::install_github("yourusername/metaoverfit")
+Load packages
+{r
+Copy code
+library(metaoverfit)
+library(metadat)   # example datasets
+library(metafor)   # escalc()
+Example: BCG Vaccine Trials
+We’ll use log risk ratios from the BCG dataset and test whether latitude explains heterogeneity.
+
+{r
+Copy code
+data(dat.bcg)
+dat <- escalc(
+  measure = "RR",
+  ai = tpos, bi = tneg, ci = cpos, di = cneg,
+  data = dat.bcg
+)
+
+head(dat[, c("yi", "vi")])
+1) Quick overfitting check
+check_overfitting() runs cross-validation and a light bootstrap (configurable), returning a concise report.
+
+{r
+Copy code
+res_check <- suppressWarnings(
+  check_overfitting(
+    yi   = dat$yi,
+    vi   = dat$vi,
+    mods = ~ ablat,
+    data = dat.bcg,
+    B    = 200          # keep runtime low for vignettes
+  )
+)
+print(res_check)
+Interpretation (typical for small $k$):
+
+Apparent $R^2_{\text{het}}$ can be large.
+
+Optimism-corrected $\tilde{R}^2_{\text{het}}$ is often much smaller.
+
+Bootstrap CIs commonly include 0 → weak evidence of genuine explanation.
+
+2) Cross-validated $\tilde{R}^2_{\text{het}}$
+Compute CV metrics directly (leave-one-out CV refits $k$ times).
+
+{r
+Copy code
+cv_out <- suppressWarnings(
+  r2het_cv(
+    dat$yi, dat$vi,
+    mods = cbind(1, dat.bcg$ablat),
+    cv_method = "loo",
+    verbose   = FALSE
+  )
+)
+cv_out$r2het_apparent
+cv_out$r2het_corrected
+cv_out$optimism
+3) Bootstrap confidence intervals (quick)
+For the vignette we use a modest number of replicates to keep build time low. In research use, increase B (e.g., 1000–5000).
+
+{r
+Copy code
+boot_out <- suppressWarnings(
+  r2het_boot(
+    dat$yi, dat$vi,
+    mods = cbind(1, dat.bcg$ablat),
+    B = 200,
+    conf_level = 0.95,
+    verbose = FALSE
+  )
+)
+boot_out$ci_apparent
+boot_out$ci_corrected
+4) Plots
+A bar plot comparing apparent vs corrected $R^2_{\text{het}}$:
+
+{r
+Copy code
+plot_overfitting(cv_out, type = "bar")
+Observed vs Predicted (if predictions are available):
+
+{r
+Copy code
+plot_overfitting(cv_out, type = "scatter")
+5) Sample size guidance
+Plan studies with acceptable optimism:
+
+{r
+Copy code
+# For p = 2 parameters (including intercept), target ≤10% optimism
+sample_size_recommendation(p = 2, target_optimism = 0.10)
+Tips & Notes
+Small $k$ and many moderators increase the chance of $\tau^2$ estimates at the boundary (0); metafor::rma() may warn. In CV/bootstraps this is expected for small datasets and is handled internally.
+
+For reproducible reports, set a seed and increase B outside of vignettes/articles.
+
+Session Info
+{r
+Copy code
+sessionInfo()
+References
+Viechtbauer W (2010). Conducting meta-analyses in R with the metafor package. J Stat Softw, 36:1–48.
+
+White T, Viechtbauer W. metadat: Meta-analytic datasets for R.
+
+See ?r2het, ?r2het_cv, ?r2het_boot, ?check_overfitting for API docs.
